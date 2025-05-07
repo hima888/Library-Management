@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BookHive</title>
+  <!-- Google Font Link -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #FDE2E4; /* Light Pink */
+      color: #4A4A4A;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #FFABAB; /* Soft Peach */
+      padding: 20px;
+      text-align: center;
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #4A4A4A;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Dancing Script', cursive; /* Stylish font */
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      background-color: #FF677D; /* Coral Pink */
+      padding: 10px 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #FFABAB; /* Soft Peach */
+    }
+
+    .container {
+      padding: 40px 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .search-box, .member-box {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"], input[type="email"] {
+      padding: 12px;
+      width: 100%;
+      max-width: 500px;
+      border: 1px solid #ccc;
+      border-radius: 25px;
+      font-size: 16px;
+      margin: 5px;
+    }
+
+    .book-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .book {
+      background-color: white;
+      padding: 15px;
+      border-radius: 12px;
+      width: 200px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .book img {
+      max-width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .book h4 {
+      font-size: 1em;
+      color: #FF677D; /* Coral Pink */
+      margin: 10px 0 5px;
+    }
+
+    .book p {
+      font-size: 0.9em;
+      margin: 0;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #FFABAB; /* Soft Peach */
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #FF677D; /* Coral Pink */
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #FFABAB; /* Soft Peach */
+      color: white;
+      margin-top: 40px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    BookHive
+  </header>
+
+  <nav>
+    <a href="#" onclick="fetchBooks('science_fiction')">Sci-Fi</a>
+    <a href="#" onclick="fetchBooks('romance')">Romance</a>
+    <a href="#" onclick="fetchBooks('mystery')">Mystery</a>
+    <a href="#" onclick="fetchBooks('fantasy')">Fantasy</a>
+    <a href="#" onclick="fetchBooks('technology')">Technology</a>
+  </nav>
+
+  <div class="container">
+    <div class="search-box">
+      <input type="text" id="searchInput" onkeyup="searchBooks()" placeholder="Search displayed books...">
+    </div>
+
+    <div class="member-box">
+      <h3>Enroll New Member</h3>
+      <input type="text" id="memberName" placeholder="Full Name">
+      <input type="email" id="memberEmail" placeholder="Email Address">
+      <button onclick="enrollMember()">Enroll Member</button>
+    </div>
+
+    <h2>Book List</h2>
+    <div id="bookList" class="book-list">
+      <!-- Books will be loaded here -->
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 BookHive. All rights reserved.
+  </footer>
+
+  <script>
+    async function fetchBooks(genre) {
+      const url = `https://openlibrary.org/subjects/${genre}.json?limit=20`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const books = data.works;
+
+      const bookList = document.getElementById('bookList');
+      bookList.innerHTML = '';
+
+      books.forEach(book => {
+        const coverId = book.cover_id;
+        const imageUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` : 'https://via.placeholder.com/150x250?text=No+Cover';
+
+        const div = document.createElement('div');
+        div.className = 'book';
+        div.setAttribute('data-title', book.title);
+        div.innerHTML = `
+          <img src="${imageUrl}" alt="Book cover">
+          <h4>${book.title}</h4>
+          <p>${book.authors && book.authors.length ? book.authors[0].name : 'Unknown Author'}</p>
+        `;
+        bookList.appendChild(div);
+      });
+    }
+
+    function searchBooks() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const books = document.querySelectorAll(".book");
+
+      books.forEach(book => {
+        const title = book.getAttribute("data-title").toLowerCase();
+        book.style.display = title.includes(input) ? "block" : "none";
+      });
+    }
+
+    function enrollMember() {
+      const name = document.getElementById('memberName').value.trim();
+      const email = document.getElementById('memberEmail').value.trim();
+
+      if (name && email) {
+        alert(`Member Enrolled:\nName: ${name}\nEmail: ${email}`);
+        document.getElementById('memberName').value = '';
+        document.getElementById('memberEmail').value = '';
+      } else {
+        alert('Please fill in both name and email.');
+      }
+    }
+
+    // Load default genre
+    window.onload = () => fetchBooks('science_fiction');
+  </script>
+
+</body>
+</html>
